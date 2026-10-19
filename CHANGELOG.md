@@ -8,6 +8,25 @@ exception: while the project is below `1.0.0`, breaking changes bump the
 **minor** version, and they are called out as such.
 
 ## [Unreleased]
+- fix(refund-policy-vdf): guard `calculate_slashing_penalty`'s product with the
+  checked `accensa_common::math` helpers. Decomposing `amount = whole * 100 +
+  rest` keeps both products in range under the `penalty <= 100` precondition,
+  so an `i128::MAX` amount no longer relies on the release profile's overflow
+  trap; the failure arm is the stated precondition, not a clamp (issue #716)
+- fix(refund-vault): route `refund_fee`'s fee decomposition through the checked
+  `mul_amounts`/`add_amounts`/`div_amounts` helpers, so an `i128::MAX` amount
+  surfaces the stated `fee_bps <= 10_000` precondition instead of aborting the
+  host call; boundary test pins the maximum amount at the maximum fee rate
+  (issue #717)
+- fix(refund-vault): route `claim_single`'s `previous_refunded + claim.amount`
+  sum through `accensa_common::math::add_amounts`, so an overflow surfaces as
+  the typed `MathOverflow` instead of aborting the host call; boundary test
+  pins the stored cumulative total at `i128::MAX - 1` (issue #718)
+- fix(refund-vault): route `deploy_to_yield`'s `total_value`, reserve and
+  max-deploy ratios and post-deployment sum through the checked
+  `add_amounts`/`sub_amounts`/`mul_ratio` helpers, so an overflow surfaces as
+  the typed `MathOverflow` instead of aborting the host call; boundary tests
+  drive each intermediate to the type's maximum (issue #719)
 - **Internal tests (#655, #657):** Pinned the treasury vesting event shapes and the reputation SBT authority gate on `issue`, `revoke` and `slash`.
 - **Documentation (#756, #757, #761, #762):** Documented granular event payload fields and refund-vault APIs.
 

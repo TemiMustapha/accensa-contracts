@@ -33,10 +33,7 @@ use std::string::{String, ToString};
 use super::*;
 use accensa_common::VaultInit;
 use budget_macros::budget_cpu_lt;
-use soroban_sdk::{
-    testutils::Address as _,
-    Address, Bytes, Env,
-};
+use soroban_sdk::{testutils::Address as _, Address, Bytes, Env};
 
 fn load_wasm(env: &Env, path: &str) -> Bytes {
     let buf = std::fs::read(path).expect(
